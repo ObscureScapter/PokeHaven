@@ -22,9 +22,9 @@ local FishTimer = nil
 local Settings = {
     ["Auto Cast"] = false,
     ["Auto Reel"] = true,
-    ["Auto Reel Time"] = 4,
-    ["Cast Delay"] = 0.2,
-    ["Bobber Delay"] = 0.8,
+    ["Auto Reel Time"] = 3.96,
+    ["Cast Delay"] = 0.15,
+    ["Bobber Delay"] = 0.75,
     ["UI Toggle"] = Enum.KeyCode.Home,
 }
 
