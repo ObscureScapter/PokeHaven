@@ -10,11 +10,17 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- variables
 
 local Player = Players.LocalPlayer
+local Library   = loadstring(game:HttpGet("https://raw.githubusercontent.com/ObscureScapter/UILibrary/main/ScapLib.lua"))()
+local Fishing = Library:CreatePage("Fishing")
 local Remotes = ReplicatedStorage.Remotes
 local FishGame = require(ReplicatedStorage.Modules.UI.Interfaces.FishMinigame)
 local OldBoost = FishGame.checkBoosterOverlay
 local MyUI = nil
 local FishTimer = nil
+local Settings = {
+    ["Auto Cast"] = false,
+    ["Auto Reel"] = false,
+}
 
 -- functions
 
@@ -23,13 +29,19 @@ Player.Idled:Connect(function()
 	VirtualUser:ClickButton2(Vector2.new())
 end)
 
+for i,v in Settings do
+    Fishing.CreateToggle(i, v, function(State: boolean)
+        Settings[i] = State
+    end)
+end
+
 FishGame.checkBoosterOverlay = function(Minigame: table)
     if Minigame.UI ~= MyUI then
         MyUI = Minigame.UI
         FishTimer = tick() + 4
     end
 
-    if Minigame.UI and Minigame.UI:FindFirstChild("MainBar") and Minigame.UI.MainBar:FindFirstChild("InnerFrame") then
+    if Minigame.UI and Minigame.UI:FindFirstChild("MainBar") and Minigame.UI.MainBar:FindFirstChild("InnerFrame") and Settings["Auto Reel"] then
         local InnerFrame = Minigame.UI.MainBar.InnerFrame
         Minigame.UI.MainBar.Slider.Position = InnerFrame.Position + UDim2.new(0, (InnerFrame.AbsoluteSize.X) / 2, 0, 0)
         Minigame.Depletion = 0
@@ -37,6 +49,8 @@ FishGame.checkBoosterOverlay = function(Minigame: table)
         if tick() - FishTimer >= 0 then
             Minigame:EndGame(true)
         end
+    elseif not Settings["Auto Reel"] then
+        return OldBoost(Minigame)
     end
 end
 
@@ -65,7 +79,7 @@ local function castLine(Rod: any?)
         Position = Vector3.new(155.38783264160156, -4.067657947540283, 123.40579223632812)
     })
 
-    task.wait(0.5)
+    task.wait(0.8)
     --repeat task.wait() until foundBobber() or Rod:FindFirstChildOfClass("Model")
 
     Remotes.ToolAction:FireServer("BaitHit", {
@@ -74,10 +88,11 @@ local function castLine(Rod: any?)
     })
 
     repeat task.wait() until Rod:FindFirstChildOfClass("Model")
-    task.wait(0.1)
+    task.wait(0.2)
 end
 
 while task.wait(1) do
+    if not Settings["Auto Cast"] then continue end
     if not Player.Character then continue end
 
     local Rod = Player.Character:FindFirstChildOfClass("Tool")
