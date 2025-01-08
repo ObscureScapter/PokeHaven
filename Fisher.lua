@@ -47,7 +47,7 @@ end)
 Fishing.CreateToggle("Auto Reel", Settings["Auto Reel"], function(State: boolean)
     Settings["Auto Reel"] = State
 end)
-Fishing.CreateSlider("Auto Reel Time", Settings["Auto Reel Time"], 0, 12, function(Count: number)
+Fishing.CreateSlider("Auto Reel Time", Settings["Auto Reel Time"], 0, 30, function(Count: number)
     Settings["Auto Reel Time"] = Count
 end)
 
