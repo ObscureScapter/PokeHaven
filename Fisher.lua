@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 -- variables
 
 local Player = Players.LocalPlayer
+local Rods = require(ReplicatedStorage.ItemLibrary.Fishing.FishingRods)
 local Library   = loadstring(game:HttpGet("https://raw.githubusercontent.com/ObscureScapter/UILibrary/main/ScapLib.lua"))()
 local Fishing = Library:CreatePage("Fishing")
 local Setting = Library:CreatePage("Settings")
@@ -22,13 +23,18 @@ local FishTimer = nil
 local Settings = {
     ["Auto Cast"] = false,
     ["Auto Reel"] = true,
-    ["Auto Reel Time"] = 3.96,
+    ["Auto Reel Time"] = 12,
     ["Cast Delay"] = 0.15,
     ["Bobber Delay"] = 0.75,
     ["UI Toggle"] = Enum.KeyCode.Home,
 }
 
 -- functions
+
+for _, Rod in Rods do
+    if not Rod.Hidden then continue end
+    Rod.Hidden = nil
+end
 
 Player.Idled:Connect(function()
 	VirtualUser:CaptureController()
@@ -41,7 +47,7 @@ end)
 Fishing.CreateToggle("Auto Reel", Settings["Auto Reel"], function(State: boolean)
     Settings["Auto Reel"] = State
 end)
-Fishing.CreateSlider("Auto Reel Time", Settings["Auto Reel Time"], 0, 8, function(Count: number)
+Fishing.CreateSlider("Auto Reel Time", Settings["Auto Reel Time"], 0, 12, function(Count: number)
     Settings["Auto Reel Time"] = Count
 end)
 
