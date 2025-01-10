@@ -79,6 +79,7 @@ FishGame.checkBoosterOverlay = function(Minigame: table)
         Minigame.Depletion = 0
 
         if tick() - FishTimer >= 0 then
+            Minigame.Progress = Minigame.Settings.MaxProgress
             Minigame:EndGame(true)
         end
     elseif not Settings["Auto Reel"] then
