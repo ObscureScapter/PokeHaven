@@ -28,6 +28,7 @@ local Settings = {
     ["Bobber Delay"] = 0.75,
     ["UI Toggle"] = Enum.KeyCode.Home,
 }
+local FishZones = Workspace.GameAssets.FishingRegions.Ocean:GetChildren()
 
 -- functions
 
@@ -47,7 +48,7 @@ end)
 Fishing.CreateToggle("Auto Reel", Settings["Auto Reel"], function(State: boolean)
     Settings["Auto Reel"] = State
 end)
-Fishing.CreateSlider("Auto Reel Time", Settings["Auto Reel Time"], 0, 30, function(Count: number)
+Fishing.CreateSlider("Auto Reel Time", Settings["Auto Reel Time"], 3.96, 60, function(Count: number)
     Settings["Auto Reel Time"] = Count
 end)
 
@@ -108,8 +109,19 @@ local function foundBobber()
 end
 
 local function castLine(Rod: any?)
+    local Position = Vector3.new(155.38783264160156, -4.067657947540283, 123.40579223632812)
+    local Params = RaycastParams.new()
+	Params.FilterType = Enum.RaycastFilterType.Include
+	Params.FilterDescendantsInstances = FishZones
+
+    local Start = Player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, -15)
+    local WaterRay = Workspace:Raycast(Start.Position, Vector3.new(0, -100, 0), Params)
+    if WaterRay and WaterRay.Instance then
+        Position = WaterRay.Position
+    end
+
     Remotes.ToolAction:FireServer("CastLine", {
-        Position = Vector3.new(155.38783264160156, -4.067657947540283, 123.40579223632812)
+        Position = Position
     })
 
     task.wait(Settings["Bobber Delay"])
@@ -117,7 +129,7 @@ local function castLine(Rod: any?)
 
     Remotes.ToolAction:FireServer("BaitHit", {
         WaterPart = workspace.GameAssets.FishingRegions.Ocean.Water,
-        Position = Vector3.new(155.38783264160156, -4.067657947540283, 123.40579223632812)
+        Position = Position
     })
 
     repeat task.wait() until Rod:FindFirstChildOfClass("Model")
