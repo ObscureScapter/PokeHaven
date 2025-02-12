@@ -16,6 +16,7 @@ local Library   = loadstring(game:HttpGet("https://raw.githubusercontent.com/Obs
 local Fishing = Library:CreatePage("Fishing")
 local Setting = Library:CreatePage("Settings")
 local Remotes = ReplicatedStorage.Remotes
+local Baits = require(ReplicatedStorage.ItemLibrary.Fishing.BaitInfo)
 local FishGame = require(ReplicatedStorage.Modules.UI.Interfaces.FishMinigame)
 local OldBoost = FishGame.checkBoosterOverlay
 local MyUI = nil
@@ -24,17 +25,24 @@ local Settings = {
     ["Auto Cast"] = false,
     ["Auto Reel"] = true,
     ["Auto Reel Time"] = 8,
+    ["Auto Buy Bait"] = false,
     ["Cast Delay"] = 0.15,
     ["Bobber Delay"] = 0.75,
     ["UI Toggle"] = Enum.KeyCode.Home,
+    ["Bait"] = "Uncommon",
 }
 local FishZones = Workspace.GameAssets.FishingRegions.Ocean:GetChildren()
+local PossibleBait = {}
 
 -- functions
 
 for _, Rod in Rods do
     if not Rod.Hidden then continue end
     Rod.Hidden = nil
+end
+
+for i,v in Baits do
+    PossibleBait[i] = v.Name
 end
 
 Player.Idled:Connect(function()
@@ -50,6 +58,12 @@ Fishing.CreateToggle("Auto Reel", Settings["Auto Reel"], function(State: boolean
 end)
 Fishing.CreateSlider("Auto Reel Time", Settings["Auto Reel Time"], 3.96, 60, function(Count: number)
     Settings["Auto Reel Time"] = Count
+end)
+Fishing.CreateToggle("Auto Buy Bait", Settings["Auto Buy Bait"], function(State: boolean)
+    Settings["Auto Buy Bait"] = State
+end)
+Fishing.CreateDropdown("Bait", Settings["Bait"], PossibleBait, function(Bait: string)
+    Settings["Bait"] = Bait
 end)
 
 Setting.CreateSlider("Cast Delay", Settings["Cast Delay"], 0, 1, function(Count: number)
@@ -109,6 +123,19 @@ local function foundBobber()
 end
 
 local function castLine(Rod: any?)
+    if Settings["Auto Buy Bait"] then
+        local Index = 1
+
+        for i,v in PossibleBait do
+            if v == Settings["Bait"] then
+                Index = i
+                break
+            end
+        end
+
+        Remotes.ShopRemotes.BuyBait:InvokeServer(Index)
+    end
+
     local Position = Vector3.new(155.38783264160156, -4.067657947540283, 123.40579223632812)
     local Params = RaycastParams.new()
 	Params.FilterType = Enum.RaycastFilterType.Include
