@@ -159,7 +159,7 @@ local function castLine(Rod: any?)
         Position = Position
     })
 
-    repeat task.wait() until Rod:FindFirstChildOfClass("Model")
+    repeat task.wait() until not Rod or not Rod.Parent or Rod:FindFirstChildOfClass("Model")
     task.wait(Settings["Cast Delay"])
 end
 
@@ -171,9 +171,9 @@ while task.wait(1) do
     if not Rod then continue end
 	
     local Class = Rod:GetAttribute("ToolClass")
-    if not Class or Class ~= "FishingRod" then continue end
+    if not Class or Class ~= "FishingRod" or not Rod then continue end
 
-    if not Rod:GetAttribute("Active") and Rod:GetAttribute("Enabled") and Rod:FindFirstChildOfClass("Model") then
+    if Rod and not Rod:GetAttribute("Active") and Rod:GetAttribute("Enabled") and Rod:FindFirstChildOfClass("Model") then
         castLine(Rod)
     end
 end
