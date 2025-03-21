@@ -1,10 +1,10 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/refs/heads/main/Source.lua"))()
+--loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/refs/heads/main/Source.lua"))()
 
 -- services
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
-local VirtualUser = game:GetService("VirtualUser")
+--local VirtualUser = game:GetService("VirtualUser")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -45,10 +45,14 @@ for i,v in Baits do
     PossibleBait[i] = v.Name
 end
 
-Player.Idled:Connect(function()
+--[[Player.Idled:Connect(function()
 	VirtualUser:CaptureController()
-	VirtualUser:ClickButton2(Vector2.new())
-end)
+	VirtualUser:ClickButton2(Vector2.new(0, 0))
+end)]]
+
+for _,v in getconnections(Player.Idled) do
+    v:Disable()
+end
 
 Fishing.CreateToggle("Auto Cast", Settings["Auto Cast"], function(State: boolean)
     Settings["Auto Cast"] = State
