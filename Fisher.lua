@@ -4,7 +4,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
---local VirtualUser = game:GetService("VirtualUser")
+local VirtualUser = game:GetService("VirtualUser")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
