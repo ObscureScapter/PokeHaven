@@ -1,4 +1,20 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/refs/heads/main/Source.lua"))()
+local function SafeFetch(Url: string)
+    local Success, Response = pcall(function()
+        return loadstring(game:HttpGet(Url))()
+    end)
+
+    if not Success then
+        repeat
+            Success, Response = pcall(function()
+                return loadstring(game:HttpGet(Url))()
+            end)
+        until Success
+    end
+
+    return Response
+end
+
+SafeFetch("https://raw.githubusercontent.com/Pixeluted/adoniscries/refs/heads/main/Source.lua")
 
 -- services
 
@@ -12,7 +28,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Player = Players.LocalPlayer
 local Rods = require(ReplicatedStorage.ItemLibrary.Fishing.FishingRods)
-local Library   = loadstring(game:HttpGet("https://raw.githubusercontent.com/ObscureScapter/UILibrary/main/ScapLib.lua"))()
+local Library = SafeFetch("https://raw.githubusercontent.com/ObscureScapter/UILibrary/main/ScapLib.lua")
 local Fishing = Library:CreatePage("Fishing")
 local Setting = Library:CreatePage("Settings")
 local Remotes = ReplicatedStorage.Remotes
