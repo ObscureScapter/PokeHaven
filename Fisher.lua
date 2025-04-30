@@ -102,23 +102,29 @@ UserInputService.InputBegan:Connect(function(Input: InputObject)
     end
 end)
 
-FishGame.checkBoosterOverlay = function(Minigame: table)
+FishGame.checkBoosterOverlay = function(Minigame: table, Real: table)
     if Minigame.UI ~= MyUI then
         MyUI = Minigame.UI
         FishTimer = tick() + Settings["Auto Reel Time"]
     end
 
-    if Minigame.UI and Minigame.UI:FindFirstChild("MainBar") and Minigame.UI.MainBar:FindFirstChild("InnerFrame") and Settings["Auto Reel"] then
-        local InnerFrame = Minigame.UI.MainBar.InnerFrame
-        Minigame.UI.MainBar.Slider.Position = InnerFrame.Position + UDim2.new(0, (InnerFrame.AbsoluteSize.X) / 2, 0, 0)
-        Minigame.Depletion = 0
+    if Minigame.UI and Minigame.UI:FindFirstChild("ActiveGames") and Settings["Auto Reel"] then
+        for _,v in Minigame.UI.ActiveGames:GetChildren() do
+         if v:FindFirstChild("MainBar") and v.MainBar:FindFirstChild("InnerFrame") then
+                local InnerFrame = v.MainBar.InnerFrame
+                v.MainBar.Slider.Position = InnerFrame.Position + UDim2.new(0, (InnerFrame.AbsoluteSize.X) / 2, 0, 0)
+            end
+        end
 
+        Minigame.Depletion = 0
         if tick() - FishTimer >= 0 then
             Minigame.Progress = Minigame.Settings.MaxProgress
-            Minigame:EndGame(true)
+            Real.Progress = Minigame.Settings.MaxProgress
+            Minigame.MinigameCompleted:Fire(true, Real.GameNo)
+            Minigame:Destroy(Real)
         end
     elseif not Settings["Auto Reel"] then
-        return OldBoost(Minigame)
+        return OldBoost(Minigame, Real)
     end
 end
 
@@ -161,23 +167,27 @@ local function castLine(Rod: any?)
 	Params.FilterType = Enum.RaycastFilterType.Include
 	Params.FilterDescendantsInstances = FishZones
 
-    local Start = Player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, -15)
+    local Start = Player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, -9)
     local WaterRay = Workspace:Raycast(Start.Position, Vector3.new(0, -100, 0), Params)
     if WaterRay and WaterRay.Instance then
         Position = WaterRay.Position
     end
 
-    Remotes.ToolAction:FireServer("CastLine", {
-        Position = Position
-    })
+    for i = 1, Rods[Rod.Name].DualBobber and 2 or 1 do
+        Remotes.ToolAction:FireServer("CastLine", {
+            Position = Position
+        }, i)
+    end
 
     task.wait(Settings["Bobber Delay"])
     --repeat task.wait() until foundBobber() or Rod:FindFirstChildOfClass("Model")
 
-    Remotes.ToolAction:FireServer("BaitHit", {
-        WaterPart = workspace.GameAssets.FishingRegions.Ocean.Water,
-        Position = Position
-    })
+    for i = 1, Rods[Rod.Name].DualBobber and 2 or 1 do
+        Remotes.ToolAction:FireServer("BaitHit", {
+            WaterPart = workspace.GameAssets.FishingRegions.Ocean.Water,
+            Position = Position
+        }, i)
+    end
 
     repeat task.wait() until not Rod or not Rod.Parent or Rod:FindFirstChildOfClass("Model")
     task.wait(Settings["Cast Delay"])
