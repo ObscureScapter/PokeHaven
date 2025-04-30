@@ -43,7 +43,7 @@ local Settings = {
     ["Auto Reel Time"] = 8,
     ["Auto Buy Bait"] = false,
     ["Cast Delay"] = 0.15,
-    ["Bobber Delay"] = 0.75,
+    --["Bobber Delay"] = 0.75,
     ["UI Toggle"] = Enum.KeyCode.Home,
     ["Bait"] = "Uncommon",
 }
@@ -113,9 +113,10 @@ FishGame.checkBoosterOverlay = function(Minigame: table, Real: table)
          if v:FindFirstChild("MainBar") and v.MainBar:FindFirstChild("InnerFrame") then
                 local InnerFrame = v.MainBar.InnerFrame
                 v.MainBar.Slider.Position = InnerFrame.Position + UDim2.new(0, (InnerFrame.AbsoluteSize.X) / 2, 0, 0)
+                v.ProgressBar.Progress.Size = UDim2.new((Real.Progress / Minigame.Settings.MaxProgress), 0, 1, 0)
             end
         end
-
+      
         Minigame.Depletion = 0
         if tick() - FishTimer >= 0 then
             Minigame.Progress = Minigame.Settings.MaxProgress
@@ -129,7 +130,7 @@ FishGame.checkBoosterOverlay = function(Minigame: table, Real: table)
 end
 
 local function foundBobber()
-    local foundBobber = false
+    local foundBobbers = {}
 
     for _,v in Workspace.GameAssets.Runtime:GetChildren() do
         if v.Name ~= "ClonedBait" then continue end
@@ -138,14 +139,12 @@ local function foundBobber()
         if not v.Root.RopeConstraint.Attachment1 then continue end
         
         if v.Root.RopeConstraint.Attachment1.Name:find(Player.Name) then
-            foundBobber = true
-
-            break
+            table.insert(foundBobbers, v)
         end
 
     end
 
-    return foundBobber
+    return foundBobbers
 end
 
 local function castLine(Rod: any?)
@@ -167,7 +166,7 @@ local function castLine(Rod: any?)
 	Params.FilterType = Enum.RaycastFilterType.Include
 	Params.FilterDescendantsInstances = FishZones
 
-    local Start = Player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, -9)
+    local Start = Player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, -10)
     local WaterRay = Workspace:Raycast(Start.Position, Vector3.new(0, -100, 0), Params)
     if WaterRay and WaterRay.Instance then
         Position = WaterRay.Position
@@ -179,14 +178,28 @@ local function castLine(Rod: any?)
         }, i)
     end
 
-    task.wait(Settings["Bobber Delay"])
-    --repeat task.wait() until foundBobber() or Rod:FindFirstChildOfClass("Model")
+    --task.wait(Settings["Bobber Delay"])
+    local Bobbers = nil
+    repeat
+        Bobbers = foundBobber()
+        task.wait()
+    until Bobbers or Rod:FindFirstChildOfClass("Model")
+    if Bobbers then
+        for _,Bobber in Bobbers do
+            local Hitter
+            Hitter = Bobber.Root.Touched:Connect(function(Hit: BasePart) --[[Anonymous function at line 77]]
+                if Hit:HasTag("Water") then
+                    for i = 1, Rods[Rod.Name].DualBobber and 2 or 1 do
+                        Remotes.ToolAction:FireServer("BaitHit", {
+                            WaterPart = workspace.GameAssets.FishingRegions.Ocean.Water,
+                            Position = Position
+                        }, i)
+                    end
 
-    for i = 1, Rods[Rod.Name].DualBobber and 2 or 1 do
-        Remotes.ToolAction:FireServer("BaitHit", {
-            WaterPart = workspace.GameAssets.FishingRegions.Ocean.Water,
-            Position = Position
-        }, i)
+                    Hitter:Disconnect()
+                end
+            end)
+        end
     end
 
     repeat task.wait() until not Rod or not Rod.Parent or Rod:FindFirstChildOfClass("Model")
