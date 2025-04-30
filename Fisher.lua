@@ -43,7 +43,7 @@ local Settings = {
     ["Auto Reel Time"] = 8,
     ["Auto Buy Bait"] = false,
     ["Cast Delay"] = 0.15,
-    --["Bobber Delay"] = 0.75,
+    ["Bobber Delay"] = 0.75,
     ["UI Toggle"] = Enum.KeyCode.Home,
     ["Bait"] = "Uncommon",
 }
@@ -116,7 +116,7 @@ FishGame.checkBoosterOverlay = function(Minigame: table, Real: table)
                 v.ProgressBar.Progress.Size = UDim2.new((Real.Progress / Minigame.Settings.MaxProgress), 0, 1, 0)
             end
         end
-      
+        
         Minigame.Depletion = 0
         if tick() - FishTimer >= 0 then
             Minigame.Progress = Minigame.Settings.MaxProgress
