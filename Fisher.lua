@@ -147,6 +147,17 @@ local function foundBobber()
     return foundBobbers
 end
 
+local function scanBobbers(Rod: any?)
+    local BobberCount = 0
+    for _,v in Rod:GetChildren() do
+        if v:IsA("Model") then
+            BobberCount += 1
+        end
+    end
+
+    return BobberCount
+end
+
 local function castLine(Rod: any?)
     if Settings["Auto Buy Bait"] then
         local Index = 1
@@ -166,7 +177,7 @@ local function castLine(Rod: any?)
 	Params.FilterType = Enum.RaycastFilterType.Include
 	Params.FilterDescendantsInstances = FishZones
 
-    local Start = Player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, -10)
+    local Start = Player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, -12)
     local WaterRay = Workspace:Raycast(Start.Position, Vector3.new(0, -100, 0), Params)
     if WaterRay and WaterRay.Instance then
         Position = WaterRay.Position
@@ -174,7 +185,7 @@ local function castLine(Rod: any?)
 
     for i = 1, Rods[Rod.Name].DualBobber and 2 or 1 do
         Remotes.ToolAction:FireServer("CastLine", {
-            Position = Position
+            Position = Position + Vector3.new(math.random(-4, 4), 0, math.random(-4, 4))
         }, i)
     end
 
@@ -192,7 +203,7 @@ local function castLine(Rod: any?)
                     for i = 1, Rods[Rod.Name].DualBobber and 2 or 1 do
                         Remotes.ToolAction:FireServer("BaitHit", {
                             WaterPart = workspace.GameAssets.FishingRegions.Ocean.Water,
-                            Position = Position
+                            Position = Bobber.Root.Position
                         }, i)
                     end
 
@@ -202,7 +213,7 @@ local function castLine(Rod: any?)
         end
     end
 
-    repeat task.wait() until not Rod or not Rod.Parent or Rod:FindFirstChildOfClass("Model")
+    repeat task.wait() until not Rod or not Rod.Parent or scanBobbers(Rod) >= (Rods[Rod.Name].DualBobber and 2 or 1)
     task.wait(Settings["Cast Delay"])
 end
 
