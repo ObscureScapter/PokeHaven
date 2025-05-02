@@ -41,9 +41,10 @@ local Settings = {
     ["Auto Cast"] = false,
     ["Auto Reel"] = true,
     ["Auto Reel Time"] = 8,
+    ["Double Bobber Time"] = 1,
     ["Auto Buy Bait"] = false,
     ["Cast Delay"] = 0.15,
-    ["Bobber Delay"] = 0.75,
+    --["Bobber Delay"] = 0.75,
     ["UI Toggle"] = Enum.KeyCode.Home,
     ["Bait"] = "Uncommon",
 }
@@ -79,6 +80,9 @@ end)
 Fishing.CreateSlider("Auto Reel Time", Settings["Auto Reel Time"], 3.96, 60, function(Count: number)
     Settings["Auto Reel Time"] = Count
 end)
+Fishing.CreateSlider("Double Bobber Time", Settings["Double Bobber Time"], 0, 10, function(Count: number)
+    Settings["Double Bobber Time"] = Count
+end)
 Fishing.CreateToggle("Auto Buy Bait", Settings["Auto Buy Bait"], function(State: boolean)
     Settings["Auto Buy Bait"] = State
 end)
@@ -89,9 +93,9 @@ end)
 Setting.CreateSlider("Cast Delay", Settings["Cast Delay"], 0, 1, function(Count: number)
     Settings["Cast Delay"] = Count
 end)
-Setting.CreateSlider("Bobber Delay", Settings["Bobber Delay"], 0, 1, function(Count: number)
+--[[Setting.CreateSlider("Bobber Delay", Settings["Bobber Delay"], 0, 1, function(Count: number)
     Settings["Bobber Delay"] = Count
-end)
+end)]]
 Setting.CreateKeybind("UI Toggle", Settings["UI Toggle"], function(Key: EnumItem)
     Settings["UI Toggle"] = Key
 end)
@@ -183,7 +187,8 @@ local function castLine(Rod: any?)
         Position = WaterRay.Position
     end
 
-    for i = 1, Rods[Rod.Name].DualBobber and 2 or 1 do
+    local IsDouble = Rods[Rod.Name].DualBobber
+    for i = 1, IsDouble and 2 or 1 do
         Remotes.ToolAction:FireServer("CastLine", {
             Position = Position + Vector3.new(math.random(-4, 4), 0, math.random(-4, 4))
         }, i)
@@ -200,11 +205,13 @@ local function castLine(Rod: any?)
             local Hitter
             Hitter = Bobber.Root.Touched:Connect(function(Hit: BasePart) --[[Anonymous function at line 77]]
                 if Hit:HasTag("Water") then
-                    for i = 1, Rods[Rod.Name].DualBobber and 2 or 1 do
+                    for i = 1, IsDouble and 2 or 1 do
                         Remotes.ToolAction:FireServer("BaitHit", {
                             WaterPart = workspace.GameAssets.FishingRegions.Ocean.Water,
                             Position = Bobber.Root.Position
                         }, i)
+
+                        if IsDouble then task.wait(Settings["Double Bobber Time"]) end
                     end
 
                     Hitter:Disconnect()
