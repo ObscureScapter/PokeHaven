@@ -41,7 +41,7 @@ local Settings = {
     ["Auto Cast"] = false,
     ["Auto Reel"] = true,
     ["Auto Reel Time"] = 8,
-    ["Double Bobber Time"] = 1,
+    ["Double Bobber Time"] = 0,
     ["Auto Buy Bait"] = false,
     ["Cast Delay"] = 0.15,
     --["Bobber Delay"] = 0.75,
@@ -51,6 +51,8 @@ local Settings = {
 local FishZones = Workspace.GameAssets.FishingRegions.Ocean:GetChildren()
 local PossibleBait = {}
 local Caught = 0
+local AOffset = math.random(-4, 4)
+local BOffset = math.random(-4, 4)
 
 -- functions
 
@@ -193,8 +195,9 @@ local function castLine(Rod: any?)
 
     local IsDouble = Rods[Rod.Name].DualBobber
     for i = 1, IsDouble and 2 or 1 do
+        local Offset = i == 1 and AOffset or BOffset
         Remotes.ToolAction:FireServer("CastLine", {
-            Position = Position + Vector3.new(math.random(-4, 4), 0, math.random(-4, 4))
+            Position = Position + Vector3.new(Offset, 0, Offset)
         }, i)
     end
 
