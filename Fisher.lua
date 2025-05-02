@@ -50,6 +50,7 @@ local Settings = {
 }
 local FishZones = Workspace.GameAssets.FishingRegions.Ocean:GetChildren()
 local PossibleBait = {}
+local Caught = 0
 
 -- functions
 
@@ -123,10 +124,12 @@ FishGame.checkBoosterOverlay = function(Minigame: table, Real: table)
         
         Minigame.Depletion = 0
         if tick() - FishTimer >= 0 then
+            if Caught >=1 then task.wait(Settings["Double Bobber Time"]) end
             Minigame.Progress = Minigame.Settings.MaxProgress
             Real.Progress = Minigame.Settings.MaxProgress
             Minigame.MinigameCompleted:Fire(true, Real.GameNo)
             Minigame:Destroy(Real)
+            Caught += 1
         end
     elseif not Settings["Auto Reel"] then
         return OldBoost(Minigame, Real)
@@ -145,7 +148,6 @@ local function foundBobber()
         if v.Root.RopeConstraint.Attachment1.Name:find(Player.Name) then
             table.insert(foundBobbers, v)
         end
-
     end
 
     return foundBobbers
@@ -163,6 +165,8 @@ local function scanBobbers(Rod: any?)
 end
 
 local function castLine(Rod: any?)
+    Caught = 0
+
     if Settings["Auto Buy Bait"] then
         local Index = 1
 
@@ -210,8 +214,6 @@ local function castLine(Rod: any?)
                             WaterPart = workspace.GameAssets.FishingRegions.Ocean.Water,
                             Position = Bobber.Root.Position
                         }, i)
-
-                        if IsDouble then task.wait(Settings["Double Bobber Time"]) end
                     end
 
                     Hitter:Disconnect()
