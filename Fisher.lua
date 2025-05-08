@@ -210,7 +210,7 @@ local function castLine(Rod: any?)
     if Bobbers then
         for _,Bobber in Bobbers do
             local Hitter
-            Hitter = Bobber.Root.Touched:Connect(function(Hit: BasePart) --[[Anonymous function at line 77]]
+            Hitter = Bobber.Root.Touched:Connect(function(Hit: BasePart)
                 if Hit:HasTag("Water") then
                     for i = 1, IsDouble and 2 or 1 do
                         Remotes.ToolAction:FireServer("BaitHit", {
