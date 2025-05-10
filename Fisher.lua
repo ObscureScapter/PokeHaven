@@ -14,13 +14,13 @@ local function SafeFetch(Url: string)
     return Response
 end
 
-SafeFetch("https://raw.githubusercontent.com/Pixeluted/adoniscries/refs/heads/main/Source.lua")
+--SafeFetch("https://raw.githubusercontent.com/Pixeluted/adoniscries/refs/heads/main/Source.lua")
 
 -- services
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
-local VirtualUser = game:GetService("VirtualUser")
+local VirtualUser = cloneref(game:GetService("VirtualUser"))
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
