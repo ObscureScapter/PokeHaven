@@ -1,4 +1,4 @@
--- Here for documentation purposes
+-- Here for archival purposes
 
 local ohTable1 = {
 	["DrinkColor"] = Color3.new(0.178833, 0.669767, 0.243887),
