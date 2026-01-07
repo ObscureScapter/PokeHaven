@@ -193,7 +193,7 @@ local function castLine(Rod: any?)
         Position = WaterRay.Position
     end
 
-    local IsDouble = Rods[Rod.Name].DualBobber
+    local IsDouble = Player:GetAttribute("DualBobber")
     for i = 1, IsDouble and 2 or 1 do
         local Offset = i == 1 and AOffset or BOffset
         Remotes.ToolAction:FireServer("CastLine", {
@@ -225,7 +225,7 @@ local function castLine(Rod: any?)
         end
     end
 
-    repeat task.wait() until not Rod or not Rod.Parent or scanBobbers(Rod) >= (Rods[Rod.Name].DualBobber and 2 or 1)
+    repeat task.wait() until not Rod or not Rod.Parent or scanBobbers(Rod) >= (IsDouble and 2 or 1)
     task.wait(Settings["Cast Delay"])
 end
 
